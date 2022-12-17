@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"     integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <title>Enrolment System</title>
+</head>
+<body>
+    
+    <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
+        <div class="container">
+          <a class="navbar-brand" href="#">Enrolment System</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="index.html">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="students.html">Students</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="courses.html">Courses</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="enrolments.html">Enrolment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+    </nav>
+    <div class="container mt-3">
+
+        <div class="float-end">
+          <a href="new_enrollee.html" class="btn btn-success">
+            <i class="fa fa-plus"></i> New Enrollee
+          </a>
+        </div>
+  
+        <h1>Enrollees</h1>
+        <hr>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Enrollment no</th>
+              <th>Student</th>
+              <th>Room</th>
+              <th class="text-center">...</th>
+            </tr>
+          </thead>
+          <tbody id="enrollments"></tbody>
+        </table>
+      </div>
+
+      <script>
+
+      function getAllEnrollments() {
+        fetch("http://localhost:8000/api/enrollments")
+          .then(response=>{
+            if(response.status==200) {
+              response.json()
+                .then(data=>renderEnrollmentTable(data.recent))
+            }
+            
+          })
+      }
+  
+        function renderEnrollmentTable(enrollments) {
+          const tbody = $("#enrollments")
+  
+          enrollments.forEach((en)=>{
+            const tr = $(document.createElement("tr"))
+  
+            tr.append("<td>" + new Date(Date.parse(en.created_at)).toDateString() + "</td>")
+            tr.append("<td>" + en.enrollment_no + "</td>")
+            tr.append("<td>" + en.student.last_name + ", " + en.student.first_name + "</td>")
+            tr.append("<td>" + en.room + "</td>")
+            tr.append("<td class='text-center'><a href='show_enrollment.html?id=" + en.id + "' class='btn btn-sm btn-info'><i class='fa fa-eye'></i></a>")
+  
+            tbody.append(tr)
+          })
+        }
+  
+        $(document).ready(()=>{
+          getAllEnrollments()
+  
+          $("#save_btn").click(()=>{
+  
+          })
+  
+          $("#confirm_delete_transaction").click(()=>{
+  
+          })
+        })
+  
+      </script>
+   
+</body>
+</html>

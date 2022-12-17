@@ -1,0 +1,29 @@
+.text-center{
+    position: relative;
+}
+
+.first-txt{
+    position: absolute;
+    top: 150px;
+    left: 50px;
+    font-family:Georgia, 'Times New Roman', Times, serif;
+    font-weight: 100em;
+    font-size: 100px;
+}
+
+.second-txt{
+    position: absolute;
+    top: 270px;
+    left: 50px;
+} 
+
+.third-txt{
+    position: absolute;
+    top: 350px;
+    left: 50px;
+}
+
+.italic{
+    font-style: italic;
+    color: #678983;
+}

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"     integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <title>Enrolment System</title>
+</head>
+<body>
+    
+    <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
+        <div class="container">
+          <a class="navbar-brand" href="#">Enrolment System</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="index.html">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="students.html">Students</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="courses.html">Courses</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="enrolments.html">Enrolment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+    </nav>
+    <div class="container mt-3">
+        <h1>New Enrollee</h1>
+        <hr>
+  
+        <div class="row">
+          <div class="col-md-3">
+            <h3>Enrollment Transaction</h3>
+  
+            <div class="mb-3">
+              <label for="enrollment_no">Enrollment Number</label>
+              <input type="text" id="enrollment_no" class="form-control">
+            </div>
+  
+            <div class="mb-3">
+              <label for="student">Student</label>
+              <select name="student" id="student" class="form-select">
+                <option value="">Select a student</option>
+              </select>
+            </div>
+            
+            <div class="mb-3">
+              <label for="program">Program</label>
+              <input type="text" id="program" class="form-control">
+            </div>
+
+          </div>
+          <div class="col-md-9">
+            <div class="float-end d-flex">
+              <div class="input-group me-2 flex-grow-1">
+                <label for="course" class="input-group-text">Course</label>
+                <select name="course" id="course" class="form-select">
+                  <option value="">Select course</option>
+                </select>
+              </div>
+              <div class="input-group me-2" style="width: 300px">
+                <label for="year" class="input-group-text">Year</label>
+                <input type="number" id="year" class="form-control">
+              </div>
+
+              <div class="input-group me-2" style="width: 300px">
+                <label for="room" class="input-group-text">Room</label>
+                <input type="text" id="room" class="form-control">
+              </div>
+
+              <button class="btn btn-warning btn-sm" id="add_student">
+                <i class="fa fa-plus"></i>
+              </button>
+            </div>
+  
+            <h3>Enrollment</h3>
+            <hr>
+  
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Course</th>
+                  <th>Professor</th>
+                  <th>Program</th>
+                  <th>Year</th>
+                </tr>
+              </thead>
+              <tbody id="studentEnrollements"></tbody>
+            </table>
+          </div>
+        </div>
+        <hr>
+        <button class="float-end btn btn-lg btn-success" id="save_enrollment">
+          <i class="fa fa-save"></i> Save Enrollment
+        </button>
+      </div>
+
+      <script>
+        var listOfCourses = []
+        var studentEnrollements = []
+  
+        function getStudents() {
+          fetch('http://localhost:8000/api/students')
+            .then(response=>{
+              if(response.status==200) {
+                response.json()
+                  .then(data=>renderStudentsSelect(data.students))
+              }
+            })
+        }
+  
+        function renderStudentsSelect(students) {
+          const stud = $("#student")
+          students.forEach((s)=>{
+            const opt = $(document.createElement("option"))
+            opt.attr('value', s.id)
+            opt.text(s.last_name + ", " + s.first_name)
+            stud.append(opt)
+          })
+        }
+  
+        function getCourses() {
+          
+          fetch('http://localhost:8000/api/courses')
+            .then(response=>{
+              if(response.status==200) {
+                response.json()
+                  .then(data=>{
+                    listOfCourses = data.courses
+                    renderCourses()
+                  })
+              }
+            })
+        }
+  
+        function renderCourses() {
+          const cour = $("#course")
+  
+          listOfCourses.forEach((course, index)=>{
+            const opt = $(document.createElement('option'))
+            opt.attr('value', index)
+            opt.text(course.course_name)
+            cour.append(opt)
+          })
+        }
+  
+        function renderTable() {
+          const tbody = $("#studentEnrollements")
+  
+          tbody.empty()
+  
+  
+          studentEnrollements.forEach((course)=>{
+  
+            const tr = $(document.createElement("tr"))
+            tr.append("<td>" + course.course_name + "</td>")
+            tr.append("<td>" + course.professor + "</td>")
+            tr.append("<td>" + course.program + "</td>")
+            tr.append("<td>" + course.year + "</td>")
+    
+            tbody.append(tr)
+  
+          })
+  
+        }
+  
+        $(document).ready(()=>{
+          getStudents()
+          getCourses()
+  
+          $("#add_student").click(()=>{
+            const selectedItem = listOfCourses[$("#course").val()]
+            const course = {
+              "course_id": selectedItem.id,
+              "program": $("#program").val(),
+              "year": $("#year").val(),
+              "course_name": selectedItem.course_name,
+              "professor": selectedItem.professor,
+            }
+  
+            studentEnrollements.push(course)
+            renderTable()
+          })
+  
+          $("#save_enrollment").click(()=>{
+            const data = {
+              "enrollment_no":$("#enrollment_no").val(),
+              "student_id":$("#student").val(),
+              "course_id":$("#course").val(),
+              "room": $("#room").val(),
+              "courses": studentEnrollements
+            }
+  
+            fetch('http://localhost:8000/api/enrollments',{
+            credentials: "omit",
+            method: "POST",
+            body: JSON.stringify(data),
+            headers:{
+              "Accept":"application/json",
+              "Content-Type":"application/json"
+            }
+          })
+            .then(response=>{
+              if(response.status==200) {
+                alert('Enrollment has been saved.')
+                window.location='enrolments.html'
+              }else{
+                console.log(response)
+              }
+            })
+          })
+        })
+  
+      </script>
+</body>
+</html>

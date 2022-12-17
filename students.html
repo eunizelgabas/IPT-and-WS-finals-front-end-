@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"     integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <title>Enrolment System</title>
+</head>
+<body>
+    
+    <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
+        <div class="container">
+          <a class="navbar-brand" href="#">Enrolment System</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="index.html">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="students.html">Students</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="courses.html">Courses</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="enrolments.html">Enrolment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+    </nav>
+    <div class="container mt-3">
+
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-success float-end" data-bs-toggle="modal" data-bs-target="#createStudentModal">
+          <i class="fa fa-plus"></i> Add Student
+        </button>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="createStudentModal" tabindex="-1" aria-labelledby="createStudentModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="createStudentModalLabel">Create New Student</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                
+                <div class="mb-3">
+                  <label for="last_name">Last Name</label>
+                  <input type="text" id="last_name" class="form-control">
+                </div>
+      
+                <div class="mb-3">
+                  <label for="first_name">First Name</label>
+                  <input type="text" id="first_name" class="form-control">
+                </div>
+      
+                <div class="mb-3">
+                  <label for="address">Address</label>
+                  <input type="text" id="address" class="form-control">
+                </div>
+      
+                <div class="mb-3">
+                  <label for="phone_no">Phone number</label>
+                  <input type="text" id="phone_no" class="form-control">
+                </div>
+  
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-warning" id="save_btn">Save Student</button>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <h1>List of Students</h1>
+        <hr>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Last Name</th>
+              <th>First Name</th>
+              <th>Address</th>
+              <th>Phone Number</th>
+              <th class="text-center">...</th>
+            </tr>
+          </thead>
+          <tbody id="students"></tbody>
+        </table>
+  
+      </div>
+   
+      <script>
+
+        function getAllStudents() {
+          fetch("http://localhost:8000/api/students")
+            .then(response=>{
+              if(response.status==200) {
+                response.json()
+                  .then(data=>{
+                    renderStudentTable(data.students)
+                  })
+              }
+            })
+        }
+  
+        function renderStudentTable(students) {
+          const tbody = $("#students")
+  
+          students.forEach((stud)=>{
+            const tr = $(document.createElement("tr"))
+  
+            tr.append("<td>" + stud.last_name + "</td>")
+            tr.append("<td>" + stud.first_name + "</td>")
+            tr.append("<td>" + stud.address + "</td>")
+            tr.append("<td>" + stud.phone_no + "</td>")
+            tr.append("<td class='text-center'><a href='show_student.html?id=" + stud.id + "' class='btn btn-sm btn-info'><i class='fa fa-eye'></i></a>")
+            
+            tbody.append(tr)
+          })
+        }
+  
+        function prependStudent(stud) {
+          const tbody = $("#students")
+  
+          const tr = $(document.createElement("tr"))
+          
+          tr.append("<td class='text-bg-success'>" + stud.last_name + "</td>")
+          tr.append("<td class='text-bg-success'>" + stud.first_name + "</td>")
+          tr.append("<td class='text-bg-success'>" + stud.address + "</td>")
+          tr.append("<td class='text-bg-success'>" + stud.phone_no + "</td>")
+          tr.append("<td class='text-center text-bg-success'><a href='show_student.html?id=" + stud.id + "' class='btn btn-sm btn-info'><i class='fa fa-eye'></i></a>")
+          
+          tbody.prepend(tr)
+        }
+  
+        function clearForm() {
+          $("#last_name").val(null)
+          $("#first_name").val(null)
+          $("#address").val(null)
+          $("#phone_no").val(null)
+        }
+  
+        $(document).ready(()=>{
+          getAllStudents()
+  
+          $("#save_btn").click(()=>{
+            const data = {
+            "last_name":$("#last_name").val(),
+            "first_name":$("#first_name").val(),
+            "address":$("#address").val(),
+            "phone_no":$("#phone_no").val(),
+            }
+  
+            fetch("http://localhost:8000/api/students",{
+              credentials: "omit",
+              method: "POST",
+              body: JSON.stringify(data),
+              headers:{
+                'Accept':'application/json',
+                'Content-Type':'application/json'
+              }
+            }).then(response=>{
+              if(response.status==200) {
+                response.json()
+                  .then(data=>prependStudent(data))
+              }
+            })
+  
+            clearForm()
+            $("#createStudentModal").modal('hide')
+          })
+        })
+  
+      </script>
+</body>
+</html>

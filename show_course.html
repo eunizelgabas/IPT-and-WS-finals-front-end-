@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"     integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <title>Enrolment System</title>
+</head>
+<body>
+    
+    <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
+        <div class="container">
+          <a class="navbar-brand" href="#">Enrolment System</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="index.html">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="students.html">Students</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="courses.html">Courses</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="enrolments.html">Enrolment</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+    </nav>
+
+
+    <div class="container mb-4">
+
+      <!-- Breadcrumb -->
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mt-2">
+          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="courses.html">Courses</a></li>
+          <li class="breadcrumb-item active" aria-current="page">View Course | <span class="course_name"></span></li>
+        </ol>
+      </nav>
+
+      <h1 class="mt-3 course_name text-uppercase"></h1>
+      <hr>
+      <div class="row">
+        <div class="col-md-4">
+          <h3>Course Details</h3>
+          <hr>
+
+          <div class="mb-3">
+            <label for="name">Course Name</label>
+            <input type="text" id="name" class="form-control">
+          </div>
+
+          <div class="mb-3">
+            <label for="professor">Professor</label>
+            <input type="text" id="professor" class="form-control">
+          </div>
+
+          <div class="mb-3">
+            <label for="meeting_time">Meeting Time</label>
+            <input type="text" id="meeting_time" class="form-control">
+          </div>
+
+          <div class="mb-3">
+            <label for="unit">Units</label>
+            <input type="text" id="unit" class="form-control">
+          </div>
+
+          <div class="d-flex">
+
+            <button class="btn btn-success me-2" id="save_btn">
+              <i class="fa fa-save"></i> Save
+            </button>
+
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+              <i class="fa fa-trash"></i> Delete
+            </button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="deleteModalLabel">Delete Course</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  
+                  <div class="modal-body">
+                    
+                    <div class="alert alert-danger">
+                      Are you sure you want to delete this course?
+                    </div>
+
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" id="confirm_delete_course">Delete</button>
+                  </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div class="col-md-8">
+          <h3>Course History</h3>
+          <hr>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Program</th>
+                <th>Year</th>
+              </tr>
+            </thead>
+            <tbody id="courses"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+
+      function getCourse(course_id) {
+        fetch('http://localhost:8000/api/courses/' + course_id)
+          .then(response=>{
+            if(response.status==200) {
+              response.json()
+                .then(data=>{
+                  renderCourse(data)
+                })
+            }
+          })
+      }
+
+      function renderCourse(course) {
+        $(".course_name").text(course.course_name)
+        $("#name").val(course.course_name)
+        $("#professor").val(course.professor)
+        $("#meeting_time").val(course.meeting)
+        $("#unit").val(course.unit)
+
+        //render course history
+        const tbody = $("#courses")
+        course.student_enrollments.forEach((cour)=>{
+          const tr = $(document.createElement("tr"))
+          tr.append("<td>" + new Date(Date.parse(cour.created_at)).toDateString() + "</td>")
+          tr.append("<td>" + cour.program + "</td>")
+          tr.append("<td>" + cour.year + "</td>")
+
+          tbody.append(tr)
+        })
+      }
+
+      $(document).ready(()=>{
+        const urlParams = new URLSearchParams(window.location.search);
+        const param_id = urlParams.get('id');
+
+        getCourse(param_id)
+
+        $("#confirm_delete_course").click(()=>{
+          $("#deleteModal").modal('hide')
+
+          fetch('http://localhost:8000/api/courses/' + param_id,{
+            credentials: "omit",
+            method:"DELETE",
+            headers:{
+              "Accept":"application/json",
+            }
+          })
+          .then(response=>{
+            if(response.status==200){
+              alert('The course has been deleted.')
+              window.location = 'courses.html'
+            }
+
+            if(response.status==500) {
+              alert('Cannot delete course. Perhaps this course has existing transactions.')
+            }
+
+          })
+
+        })
+
+        $("#save_btn").click(()=>{
+
+          const data = {
+            "course_name": $("#name").val(),
+            "professor": $("#professor").val(),
+            "program": $("#program").val(),
+            "year": $("#year").val(),
+          }
+
+          fetch("http://localhost:8000/api/courses/" + param_id,{
+            credentials: "omit",
+            method: "PUT",
+            headers:{
+              "Accept":"application/json",
+              "Content-Type":"application/json"
+            },
+            body: JSON.stringify(data)
+          })
+          .then(response=>{
+            if(response.status==200) {
+              response.json()
+                .then(data=>{
+                  alert('The data has been updated.')
+                })
+            }
+          })
+        })
+      })
+
+    </script>
+
+</body>
+</html>
